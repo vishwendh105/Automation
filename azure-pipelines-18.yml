@@ -1,0 +1,59 @@
+trigger:
+- main
+
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+pool:
+  vmImage: ubuntu-latest
+  strategy:
+  matrix:
+    Python38:
+      python.version: '3.8'
+    Python39:
+      python.version: '3.9'
+    Python310:
+      python.version: '3.10'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    pip install pytest pytest-azurepipelines
+    pytest
+  displayName: 'pytest'
+
+- stage: Deploy
+  jobs:
+  - job: DeployJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'  # Use the appropriate Python version
+        addToPath: true
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Pay-As-You-Go (23af9f78-f334-4099-8d16-d44d4c978994)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az login'
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Pay-As-You-Go (23af9f78-f334-4099-8d16-d44d4c978994)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az storage blob upload-batch --account-name storageaccountmore --destination content --source ./dist'
