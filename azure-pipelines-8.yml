@@ -1,0 +1,45 @@
+trigger:
+- main  # Change this to your branch
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'  # Use the appropriate Python version
+        addToPath: true
+
+    - script: |
+        # Install dependencies, run tests, and package your Python application
+        pip install --upgarade pip
+        python setup.py sdist bdist_wheel
+      displayName: 'Build Python Application'
+
+- stage: Deploy
+  jobs:
+  - job: DeployJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'  # Use the appropriate Python version
+        addToPath: true
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Pay-As-You-Go (23af9f78-f334-4099-8d16-d44d4c978994)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az login'
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Pay-As-You-Go (23af9f78-f334-4099-8d16-d44d4c978994)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az storage blob upload-batch --account-name storageaccountmore --destination content --source ./dist'
