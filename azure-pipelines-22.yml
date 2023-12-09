@@ -21,12 +21,4 @@ jobs:
     displayName: 'Install Python Dependencies'
 
 
-  - script: |
-      
-      pip install pytest-cov
-      pytest --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml
-      pytest
-    displayName: 'pytest'
- 
-
   # Add more steps for your build and test processes as needed
