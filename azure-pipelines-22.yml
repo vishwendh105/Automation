@@ -1,0 +1,22 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: InstallPython
+  displayName: 'Install Python'
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'  # Specify the desired Python version
+      addToPath: true
+
+  - script: |
+      python --version  # Verify Python installation
+      pip install --upgrade pip
+      pip install -r requirements.txt  # Install Python dependencies
+    displayName: 'Install Python Dependencies'
+
+  # Add more steps for your build and test processes as needed
