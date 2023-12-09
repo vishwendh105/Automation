@@ -12,8 +12,6 @@ steps:
       pip install --upgrade pip
       pip freeze > requirements.txt
       pip install -r requirements.txt
-      pytest
-      python setup.py sdist bdist_wheel
   displayName: 'Build Python Application'
 
 - task: AzureCLI@2
